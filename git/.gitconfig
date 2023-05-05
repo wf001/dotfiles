@@ -1,0 +1,22 @@
+[include]
+    path = ~/.gitconfig.local
+[alias]
+    st = status -s
+		da =  diff --cached
+    l = log --oneline -n 3
+    co = checkout
+    cob = checkout -b
+    cm = commit
+    cma = commit --amend
+    ba = branch -a
+		d = "!f() { [ \"$GIT_PREFIX\" != \"\" ] && cd "$GIT_PREFIX"; git diff --color $@ | diff-so-fancy | less --tabs=4 -RFX; }; f"
+
+
+[core]
+    editor = nvim
+    ui = true
+
+[init]
+	defaultBranch = dev
+[pull]
+	rebase = false

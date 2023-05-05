@@ -1,0 +1,62 @@
+#zshプロンプトにモード表示####################################
+
+A=169
+B=211
+C=120
+D=015
+E=202
+
+function zle-line-init zle-keymap-select {
+case $KEYMAP in
+    vicmd)
+        PROMPT="  %F{${A}}N %F{${B}}%~  `rprompt-git-current-branch`
+`pipenv-info` %F{${C}}>>%F{${D}} "
+        ;;
+    main|viins)
+        PROMPT="    %F{${B}}%~  `rprompt-git-current-branch`
+`pipenv-info` %F{${C}}>>%F{${D}} "
+        ;;
+esac
+zle reset-prompt
+}
+zle -N zle-line-init
+zle -N zle-keymap-select
+ function pipenv-info {
+		if [ -n "$VIRTUAL_ENV" ]; then
+			echo "%F{${E}}(${VIRTUAL_ENV##*/})"
+		fi
+ }
+
+
+# # ブランチ名を色付きで表示させるメソッド
+ function rprompt-git-current-branch {
+    local branch_name st branch_status
+
+    branch_name=`git rev-parse --abbrev-ref HEAD 2> /dev/null`
+    st=`git status 2> /dev/null`
+    if [[ -n `echo "$st" | grep "^nothing to"` ]]; then
+        # 全てcommitされてクリーンな状態
+        branch_status="%F{082}"
+    elif [[ -n `echo "$st" | grep "^Untracked files"` ]]; then
+        # gitに管理されていないファイルがある状態
+        branch_status="%F{164}?"
+    elif [[ -n `echo "$st" | grep "^Changes not staged for commit"` ]]; then
+        # git addされていないファイルがある状態
+        branch_status="%F{181}+"
+    elif [[ -n `echo "$st" | grep "^Changes to be committed"` ]]; then
+        # git commitされていないファイルがある状態
+        branch_status="%F{154}!"
+    elif [[ -n `echo "$st" | grep "^rebase in progress"` ]]; then
+        # コンフリクトが起こった状態
+        echo "%F{201}!!!(no branch)"
+        return
+    else
+        # 上記以外の状態の場合は青色で表示させる
+        branch_status="%F{027}"
+    fi
+    # ブランチ名を色付きで表示する
+    echo "${branch_status}[$branch_name]"
+}
+# プロンプトが表示されるたびにプロンプト文字列を評価、置換する
+setopt prompt_subst
+
